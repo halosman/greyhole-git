@@ -29,11 +29,25 @@ pkgver() {
 package() {
   # Copy from INSTALL in git directory
   cd "$_gitname"
-
+  
+  # Setup Required Dirs and permissions
   mkdir -p $pkgdir/var/spool/greyhole
   chmod 777 $pkgdir/var/spool/greyhole
   mkdir -p $pkgdir/usr/share/greyhole
   
+  # Temporarily copy over php.ini file and add current directory to open_basedir
+  cp /etc/php/php.ini .|| echo "Can't find php.ini file in /etc/php" || die 1
+  (sed -i -e 's,\(open_basedir = .*\),\1:'`pwd`',' php.ini)
+
+  # Manually enter commands from Makefile, as it requires root access
+  php -c php.ini inject-includes.php greyhole
+  php -c php.ini inject-includes.php greyhole-dfree.php
+  php -c php.ini inject-includes.php web-app/index.php 
+
+  (cd docs && gzip -9 greyhole.1 && gzip -9 greyhole-dfree.1 && gzip -9 greyhole.conf.5)  
+
+
+
   # Binaries
   install -m 0755 -D -p greyhole $pkgdir/usr/bin/greyhole
   install -m 0755 -D -p greyhole-dfree $pkgdir/usr/bin/greyhole-dfree
@@ -49,9 +63,9 @@ package() {
   install -m 0755 -D -p greyhole.cron.daily $pkgdir/etc/cron.daily/greyhole
 
   # manpages
-  install -m 0644 -D -p docs/greyhole.1 $pkgdir/usr/share/man/man1/greyhole.1
-  install -m 0644 -D -p docs/greyhole-dfree.1 $pkgdir/usr/share/man/man1/greyhole-dfree.1
-  install -m 0644 -D -p docs/greyhole.conf.5 $pkgdir/usr/share/man/man5/greyhole.conf.5
+  install -m 0644 -D -p docs/greyhole.1.gz $pkgdir/usr/share/man/man1/greyhole.1.gz
+  install -m 0644 -D -p docs/greyhole-dfree.1.gz $pkgdir/usr/share/man/man1/greyhole-dfree.1.gz
+  install -m 0644 -D -p docs/greyhole.conf.5.gz $pkgdir/usr/share/man/man5/greyhole.conf.5.gz
 
   # PhP Web App
   mkdir -p ${pkgdir}/usr/share/greyhole/web-app/
