@@ -11,7 +11,7 @@ post_install() {
     echo "  https://github.com/gboudreau/Greyhole/wiki to configure your installation"
     echo "  Also see: https://wiki.archlinux.org/index.php/Greyhole#Configuration"
     echo "  Please see: https://github.com/gboudreau/Greyhole/wiki/How-to-visualize-used-disk-space-in-your-storage-pool for instructions on visualizing web pool"
-    echo " Make sure to uncomment extension=pdo_mysql.so in /etc/php/php.ini"
+    echo " Make sure to uncomment extension=pdo_mysql.so and extension=intl.so in /etc/php/php.ini"
 }
 
 post_upgrade() {
